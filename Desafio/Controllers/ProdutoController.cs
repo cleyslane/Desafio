@@ -20,11 +20,19 @@ namespace Desafio.Controllers
             _context = context;
         }
 
+        //Transforma produto para modelo DTO, o qual oculta propriedades que não devem ser exibidas
+        private static ProdutoDTO ProdutoToDTO(Produto produto) =>
+        new ProdutoDTO
+        {   Nome = produto.Nome,
+            ValorUnitario = produto.ValorUnitario,
+            QtdEstoque =produto.QtdEstoque,
+        };
+
         // GET: api/Produto
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Produto>>> GetProdutos()
+        public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutos()
         {
-            return await _context.Produtos.ToListAsync();
+            return await _context.Produtos.Select(x => ProdutoToDTO(x)).ToListAsync();
         }
 
         // GET: api/Produto/5
