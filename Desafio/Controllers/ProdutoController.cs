@@ -13,14 +13,14 @@ namespace Desafio.Controllers
     [ApiController]
     public class ProdutoController : ControllerBase
     {
-        private readonly ProdutoContext _context;
+        private ProdutoContext _context;
 
         public ProdutoController(ProdutoContext context)
         {
             _context = context;
         }
 
-        //Transforma produto para modelo DTO, o qual oculta propriedades que não devem ser exibidas
+        //Transforma produto para modelo DTO, o qual oculta a propriedade id 
         private static ProdutoDTO ProdutoToDTO(Produto produto) =>
         new ProdutoDTO
         {   Nome = produto.Nome,
@@ -32,26 +32,30 @@ namespace Desafio.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutos()
         {
-            return await _context.Produtos.Select(x => ProdutoToDTO(x)).ToListAsync();
+            return Ok(await _context.Produtos.Select(x => ProdutoToDTO(x)).ToListAsync());
         }
 
         // GET: api/Produto/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Produto>> GetProduto(int id)
+        public async Task<ActionResult<Produto>> GetProduto([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Ocorreu um erro desconhecido");
+            }
+
             var produto = await _context.Produtos.FindAsync(id);
+
 
             if (produto == null)
             {
-                return NotFound();
+                return NotFound("Produto não existe");
             }
 
-            return produto;
+            return Ok(produto);
         }
 
         // PUT: api/Produto/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduto(int id, Produto produto)
         {
@@ -82,15 +86,18 @@ namespace Desafio.Controllers
         }
 
         // POST: api/Produto
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Produto>> PostProduto(Produto produto)
+        public async Task<IActionResult> PostProduto([FromBody] Produto produto)
         {
-            _context.Produtos.Add(produto);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetProduto), new { id = produto.Id }, produto);
+            if (ModelState.IsValid)
+            {
+                _context.Produtos.Add(produto);
+                await _context.SaveChangesAsync();
+                return Ok("Produto cadastrado com sucesso");
+            } else
+            {
+                return BadRequest("Ocorreu um erro desconhecido");
+            }
         }
 
         // DELETE: api/Produto/5
@@ -106,7 +113,7 @@ namespace Desafio.Controllers
             _context.Produtos.Remove(produto);
             await _context.SaveChangesAsync();
 
-            return produto;
+            return Ok("Produto excluído com sucesso");
         }
 
         private bool ProdutoExists(int id)
