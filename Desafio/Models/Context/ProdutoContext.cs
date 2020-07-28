@@ -14,7 +14,5 @@ namespace Desafio.Models
         }
 
         public DbSet<Produto> Produtos { get; set; }
-        public DbSet<CartaoCredito> Cartoes { get; set; }
-        public DbSet<Compra> Compras { get; set; }
     }
 }

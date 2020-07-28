@@ -20,90 +20,27 @@ namespace Desafio.Controllers
             _context = context;
         }
 
-        // GET: api/Compras
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Compra>>> GetCompras()
+        private void BaixaNoEstoque(int id, int qtd)
         {
-            return await _context.Compras.ToListAsync();
-        }
-
-        // GET: api/Compras/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Compra>> GetCompra(int id)
-        {
-            var compra = await _context.Compras.FindAsync(id);
-
-            if (compra == null)
-            {
-                return NotFound();
-            }
-
-            return compra;
-        }
-
-        // PUT: api/Compras/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCompra(int id, Compra compra)
-        {
-            if (id != compra.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(compra).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CompraExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            Produto prod = _context.Produtos.Find(id);
+            prod.qtde_estoque -= qtd;
+            prod.valor_ultima_venda = prod.valor_unitario * qtd;
+            prod.data_ultima_venda = DateTime.Now;
+            _context.SaveChanges();
         }
 
         // POST: api/Compras
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Compra>> PostCompra(Compra compra)
+        public ActionResult PostCompra([FromBody]Compra compra)
         {
-            _context.Compras.Add(compra);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCompra", new { id = compra.Id }, compra);
-        }
-
-        // DELETE: api/Compras/5
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<Compra>> DeleteCompra(int id)
-        {
-            var compra = await _context.Compras.FindAsync(id);
-            if (compra == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                BaixaNoEstoque(compra.produto_id, compra.qtde_comprada);
+                return Ok("Venda realizada com sucesso");
             }
 
-            _context.Compras.Remove(compra);
-            await _context.SaveChangesAsync();
-
-            return compra;
-        }
-
-        private bool CompraExists(int id)
-        {
-            return _context.Compras.Any(e => e.Id == id);
+            return BadRequest("Ocorreu um erro desconhecido");
+       
         }
     }
 }

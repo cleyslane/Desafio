@@ -11,11 +11,11 @@ namespace Desafio.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProdutoController : ControllerBase
+    public class ProdutosController : ControllerBase
     {
         private ProdutoContext _context;
 
-        public ProdutoController(ProdutoContext context)
+        public ProdutosController(ProdutoContext context)
         {
             _context = context;
         }
@@ -23,9 +23,9 @@ namespace Desafio.Controllers
         //Transforma produto para modelo DTO, o qual oculta a propriedade id 
         private static ProdutoDTO ProdutoToDTO(Produto produto) =>
         new ProdutoDTO
-        {   Nome = produto.Nome,
-            ValorUnitario = produto.ValorUnitario,
-            QtdEstoque =produto.QtdEstoque,
+        {   nome = produto.nome,
+            valor_unitario = produto.valor_unitario,
+            qtde_estoque =produto.qtde_estoque,
         };
 
         // GET: api/Produto
@@ -59,7 +59,7 @@ namespace Desafio.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduto(int id, Produto produto)
         {
-            if (id != produto.Id)
+            if (id != produto.produto_id)
             {
                 return BadRequest();
             }
@@ -118,7 +118,7 @@ namespace Desafio.Controllers
 
         private bool ProdutoExists(int id)
         {
-            return _context.Produtos.Any(e => e.Id == id);
+            return _context.Produtos.Any(e => e.produto_id == id);
         }
     }
 }

@@ -8,15 +8,19 @@ namespace Desafio.Models
 {
     public class CartaoCredito
     {
-        [Key]
-        [CreditCard]
-        public String Numero { get; set; }
-        public String Titular { get; set; }
-
+     
+        [Required]
+        public String titular { get; set; }
+        [Required]
+        [CreditCard(ErrorMessage ="Número do cartão inválido")]
+        public String numero { get; set; }
+        [Required]
         [DataType(DataType.Date)]
-        public DateTime DataExpiracao { get; set; }
-        public String Bandeira { get; set; }
-        public String Cvv { get; set; }
+        public DateTime data_expiracao { get; set; }
+        [Required]
+        public String bandeira { get; set; }
+        [Required]
+        public String cvv { get; set; }
 
     }
 }
